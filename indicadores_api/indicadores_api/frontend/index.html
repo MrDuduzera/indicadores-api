@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Indicadores Econômicos</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+    input, select { margin: 5px; padding: 5px; }
+    .selic { margin-bottom: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Sistema de Indicadores Econômicos</h1>
+  <p class="selic" id="selic">Carregando taxa Selic...</p>
+
+  <table id="tabela">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tipo</th>
+        <th>Valor</th>
+        <th>Ano</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Adicionar / Editar Indicador</h2>
+  <form id="formulario">
+    <select id="tipo">
+      <option value="PIB">Produto Interno Bruto</option>
+      <option value="IPCA">Inflação IPCA</option>
+      <option value="CAMBIO">Câmbio</option>
+      <option value="RECEITA">Receita</option>
+      <option value="DESPESA">Despesa</option>
+      <option value="OUTRO">Outro</option>
+    </select>
+    <input type="number" id="valor" placeholder="Valor" required>
+    <input type="number" id="ano" placeholder="Ano" required>
+    <input type="hidden" id="edit-id">
+    <button type="submit">Salvar</button>
+  </form>
+
+  <script>
+    const API_URL = "http://localhost:8000/api/indicadores/";
+
+    function carregarSelic() {
+      fetch("https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados?formato=json")
+        .then(res => res.json())
+        .then(dados => {
+          const ultimo = dados[dados.length - 1];
+          document.getElementById("selic").innerText =
+            `Selic: ${ultimo.valor}% em ${ultimo.data}`;
+        });
+    }
+
+    function carregarIndicadores() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#tabela tbody");
+          tbody.innerHTML = "";
+          data.forEach(indicador => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${indicador.id}</td>
+              <td>${indicador.tipo}</td>
+              <td>${indicador.valor}</td>
+              <td>${indicador.ano}</td>
+              <td>
+                <button onclick="editar(${indicador.id}, '${indicador.tipo}', ${indicador.valor}, ${indicador.ano})">Editar</button>
+                <button onclick="excluir(${indicador.id})">Excluir</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    function editar(id, tipo, valor, ano) {
+      document.getElementById("edit-id").value = id;
+      document.getElementById("tipo").value = tipo;
+      document.getElementById("valor").value = valor;
+      document.getElementById("ano").value = ano;
+    }
+
+    function excluir(id) {
+      fetch(API_URL + id + "/", { method: "DELETE" })
+        .then(() => carregarIndicadores());
+    }
+
+    document.getElementById("formulario").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const id = document.getElementById("edit-id").value;
+      const dados = {
+        tipo: document.getElementById("tipo").value,
+        valor: parseFloat(document.getElementById("valor").value),
+        ano: parseInt(document.getElementById("ano").value)
+      };
+
+      const url = id ? API_URL + id + "/" : API_URL;
+      const method = id ? "PUT" : "POST";
+
+      fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+      }).then(() => {
+        this.reset();
+        carregarIndicadores();
+      });
+    });
+
+    carregarSelic();
+    carregarIndicadores();
+  </script>
+</body>
+</html>
