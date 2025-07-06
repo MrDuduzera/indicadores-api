@@ -1,1 +1,1 @@
-web: gunicorn indicadores_api.wsgi
+web: gunicorn indicadores_api.wsgi:application
