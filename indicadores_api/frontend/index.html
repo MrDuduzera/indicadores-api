@@ -51,9 +51,19 @@
       fetch("https://api.bcb.gov.br/dados/serie/bcdata.sgs.1178/dados?formato=json")
         .then(res => res.json())
         .then(dados => {
-          const ultimo = dados[dados.length - 1];
+          if (dados && dados.length > 0) {
+            const ultimo = dados[dados.length - 1];
+            document.getElementById("selic").innerText =
+              `Selic: ${ultimo.valor}% em ${ultimo.data}`;
+          } else {
+            document.getElementById("selic").innerText =
+              "Não foi possível carregar a taxa Selic.";
+          }
+        })
+        .catch(err => {
+          console.error("Erro ao buscar a Selic:", err);
           document.getElementById("selic").innerText =
-            `Selic: ${ultimo.valor}% em ${ultimo.data}`;
+            "Erro ao carregar a taxa Selic.";
         });
     }
 
@@ -130,7 +140,7 @@
       })
       .then(() => {
         this.reset();
-        document.getElementById("edit-id").value = ""; // Limpa ID oculto
+        document.getElementById("edit-id").value = "";
         carregarIndicadores();
       })
       .catch(error => {
