@@ -110,14 +110,14 @@
         ano: parseInt(document.getElementById("ano").value)
       };
 
-      console.log("Enviando para API:", dados);
+      console.log("Enviando para API:", JSON.stringify(dados, null, 2));
 
       const url = id ? API_URL + id + "/" : API_URL;
       const method = id ? "PUT" : "POST";
 
       fetch(url, {
         method: method,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",  "Accept": "application/json" },
         body: JSON.stringify(dados)
       })
       .then(response => {
