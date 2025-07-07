@@ -130,6 +130,7 @@
       })
       .then(() => {
         this.reset();
+        document.getElementById("edit-id").value = ""; // Limpa ID oculto
         carregarIndicadores();
       })
       .catch(error => {
