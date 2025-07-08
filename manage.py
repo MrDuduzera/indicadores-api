@@ -1,3 +1,5 @@
+#Arquivo principal para executar comandos do Django, como rodar o servidor ou aplicar migrações.
+
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os

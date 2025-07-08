@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+#Contém todas as configurações do projeto, como apps instalados, banco de dados e middleware.
 
 from pathlib import Path
 
